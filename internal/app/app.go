@@ -8,7 +8,9 @@ import (
 	"syscall"
 
 	"github.com/AnatoliyBr/dwh-service/internal/controller/apiserver"
+	"github.com/AnatoliyBr/dwh-service/internal/repository"
 	"github.com/BurntSushi/toml"
+	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 )
 
@@ -20,10 +22,21 @@ func init() {
 
 func Run() {
 
+	// PostgreSQL
+	if err := godotenv.Load(); err != nil {
+		logrus.Fatal(fmt.Errorf("app - Run - godotenv.Load: %w", err))
+	}
+	configDB := repository.NewConfig()
+	db, err := repository.NewDB(configDB)
+	if err != nil {
+		logrus.Fatal(fmt.Errorf("app - Run - repository.NewDB: %w", err))
+	}
+	defer db.Close()
+
 	// Controller
 	flag.Parse()
 	configAPIServer := apiserver.NewConfig()
-	_, err := toml.DecodeFile(configPath, configAPIServer)
+	_, err = toml.DecodeFile(configPath, configAPIServer)
 	if err != nil {
 		logrus.Fatal(fmt.Errorf("app - Run - toml.DecodeFile: %w", err))
 	}
