@@ -6,8 +6,16 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
+)
+
+type ctxKey uint8
+
+const (
+	ctxKeyRequestID ctxKey = iota
 )
 
 type apiServer struct {
@@ -42,6 +50,11 @@ func NewAPIServer(config *Config) (*apiServer, error) {
 
 func (s *apiServer) configureRouter() {
 	r := mux.NewRouter()
+
+	// middleware
+	r.Use(s.setRequestID)
+	r.Use(s.logRequest)
+	r.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
 
 	// test
 	r.HandleFunc("/hello", s.handleHello()).Methods(http.MethodGet)
@@ -80,6 +93,46 @@ func (s *apiServer) Shutdown() error {
 	defer cancel()
 
 	return s.httpServer.Shutdown(ctx)
+}
+
+func (s *apiServer) setRequestID(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		id := uuid.New().String()
+		w.Header().Set("X-Request-ID", id)
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxKeyRequestID, id)))
+	})
+}
+
+func (s *apiServer) logRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logger := s.logger.WithFields(logrus.Fields{
+			"remote_addr": r.RemoteAddr,
+			"request_id":  r.Context().Value(ctxKeyRequestID),
+		})
+		logger.Infof("started %s %s", r.Method, r.RequestURI)
+
+		start := time.Now()
+		rw := &responseWriter{w, http.StatusOK}
+		next.ServeHTTP(rw, r)
+
+		var level logrus.Level
+		switch {
+		case rw.code >= 500:
+			level = logrus.ErrorLevel
+		case rw.code >= 400:
+			level = logrus.WarnLevel
+		default:
+			level = logrus.InfoLevel
+		}
+
+		logger.Logf(
+			level,
+			"completed with %d %s in %v",
+			rw.code,
+			http.StatusText(rw.code),
+			time.Now().Sub(start),
+		)
+	})
 }
 
 func (s *apiServer) handleHello() http.HandlerFunc {
