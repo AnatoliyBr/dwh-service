@@ -7,7 +7,7 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation"
 )
 
-var defaultMetricTypes = []string{"INT", "FLOAT", "DURATION_IN_NS", "TIMESTAMP_WITH_TIMEZONE", "BOOL"}
+var defaultMetricTypes = []string{"INT", "FLOAT", "DURATION", "TIMESTAMP_WITH_TIMEZONE", "BOOL", "STRING"}
 
 type Metric struct {
 	MetricID   int    `json:"metric_id"`

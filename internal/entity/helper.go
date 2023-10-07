@@ -17,7 +17,7 @@ func TestService(t *testing.T) *Service {
 func TestMetric(t *testing.T) *Metric {
 	return &Metric{
 		Slug:       "READING_TIME_NOTE_1",
-		MetricType: "DURATION_IN_NS",
+		MetricType: "DURATION",
 		Details: `The "Read Time" metric allows you to estimate the approximate amount \
 				of time it will take the user to read the page from beginning to end, \
 				including the content of all snippets, variables, headers and footers, if any.`,
