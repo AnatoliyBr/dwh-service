@@ -2,6 +2,7 @@ package entity
 
 import (
 	"bytes"
+	"fmt"
 	"time"
 )
 
@@ -13,8 +14,8 @@ type CustomTime struct {
 	time.Time
 }
 
-func (t *CustomTime) MarshalJSON() ([]byte, error) {
-	return []byte(t.Format(defaultLayout)), nil
+func (t CustomTime) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf(`"%s"`, t.Time.Format(defaultLayout))), nil
 }
 
 func (t *CustomTime) UnMarshalJSON(data []byte) error {

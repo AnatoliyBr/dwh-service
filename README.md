@@ -53,6 +53,7 @@ make compose-up
     * [Типа BOOL](#типа-bool)
     * [Типа STRING](#типа-string)
 * [Просмотр метрики](#просмотр-метрики)
+* [Добавление события](#добавление-события)
 
 ### Добавление сервиса
 Добавление нового сервиса:
@@ -254,6 +255,80 @@ curl --location --request GET http://localhost:8080/metrics \
     "slug": "INT_METRIC",
     "metric_type": "INT",
     "details": "Calculated in integers"
+}
+```
+
+### Добавление события
+Добавление нового события со списком метрик:
+
+```bash
+curl --location --request POST http://localhost:8080/events \
+--data-raw '{
+    "service_id": 1,
+    "metrics": [
+        {
+            "metric_id": 1,
+            "metric_value": 25
+        },
+        {
+            "metric_id": 2,
+            "metric_value": 36.6
+        },
+        {
+            "metric_id": 3,
+            "metric_value": "1h13m0.5s"
+        },
+        {
+            "metric_id": 4,
+            "metric_value": "2023-10-08T19:14:05Z"
+        },
+        {
+            "metric_id": 5,
+            "metric_value": true
+        },
+        {
+            "metric_id": 6,
+            "metric_value": "Suspicious activity"
+        }
+    ]
+}'
+```
+
+Пример ответа:
+
+```bash
+{
+    "event": {
+        "event_id": 1,
+        "time_stamp": "2023-10-08T20:44:59+03:00",
+        "service_id": 1
+    },
+    "metrics": [
+        {
+            "metric_id": 1,
+            "metric_value": 25
+        },
+        {
+            "metric_id": 2,
+            "metric_value": 36.6
+        },
+        {
+            "metric_id": 3,
+            "metric_value": "1h13m0.5s"
+        },
+        {
+            "metric_id": 4,
+            "metric_value": "2023-10-08T19:14:05Z"
+        },
+        {
+            "metric_id": 5,
+            "metric_value": true
+        },
+        {
+            "metric_id": 6,
+            "metric_value": "Suspicious activity"
+        }
+    ]
 }
 ```
 

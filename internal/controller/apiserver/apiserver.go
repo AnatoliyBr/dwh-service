@@ -67,6 +67,8 @@ func (s *apiServer) configureRouter() {
 	r.HandleFunc("/metrics", s.handleMetricCreate()).Methods(http.MethodPost)
 	r.HandleFunc("/metrics", s.handleMetricFindByID()).Methods(http.MethodGet)
 
+	r.HandleFunc("/events", s.handleEventCreate()).Methods(http.MethodPost)
+
 	s.httpServer.Handler = r
 }
 
@@ -240,6 +242,48 @@ func (s *apiServer) handleMetricFindByID() http.HandlerFunc {
 		}
 
 		s.respond(w, r, http.StatusOK, metric)
+	}
+}
+
+func (s *apiServer) handleEventCreate() http.HandlerFunc {
+	type request struct {
+		ServiceID int                   `json:"service_id"`
+		Metrics   []*entity.LightMetric `json:"metrics"`
+	}
+
+	type response struct {
+		Event   *entity.Event         `json:"event"`
+		Metrics []*entity.LightMetric `json:"metrics"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		e := &entity.Event{
+			TimeStamp: entity.CustomTime{Time: time.Now()},
+			ServiceID: req.ServiceID,
+		}
+
+		if err := s.uc.EventCreate(e); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		if err := s.uc.AddMetricsToEvent(e.EventID, req.Metrics); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		resp := &response{
+			Event:   e,
+			Metrics: req.Metrics,
+		}
+
+		s.respond(w, r, http.StatusCreated, resp)
 	}
 }
 
