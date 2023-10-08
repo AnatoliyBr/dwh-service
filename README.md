@@ -43,10 +43,18 @@ make compose-up
 ```
 
 ## Примеры запросов
-* [Добавление нового сервиса](#добавление-нового-сервиса)
+* [Добавление сервиса](#добавление-сервиса)
 * [Просмотр сервиса](#просмотр-сервиса)
+* [Добавление метрики](#добавление-метрики)
+    * [Типа INT](#типа-int)
+    * [Типа FLOAT](#типа-float)
+    * [Типа DURATION](#типа-duration)
+    * [Типа TIMESTAMP_WITH_TIMEZONE](#типа-timestamp_with_timezone)
+    * [Типа BOOL](#типа-bool)
+    * [Типа STRING](#типа-string)
+* [Просмотр метрики](#просмотр-метрики)
 
-### Добавление нового сервиса
+### Добавление сервиса
 Добавление нового сервиса:
 
 ```bash
@@ -84,6 +92,168 @@ curl --location --request GET http://localhost:8080/services \
     "service_id": 1,
     "slug": "TODO_APP",
     "details": "REST API application for managing task lists (todo lists)"
+}
+```
+
+### Добавление метрики
+> Сервер поддерживает 6 типов: "INT", "FLOAT", "DURATION", "TIMESTAMP_WITH_TIMEZONE", "BOOL", "STRING".
+
+#### Типа INT
+Добавление новой метрики типа "INT":
+
+```bash
+curl --location --request POST http://localhost:8080/metrics \
+--data-raw '{
+    "slug":"INT_METRIC",
+    "metric_type": "INT",
+    "details":"Calculated in integers"
+}'
+```
+
+Пример ответа:
+
+```bash
+{
+    "metric_id": 1,
+    "slug": "INT_METRIC",
+    "metric_type": "INT",
+    "details": "Calculated in integers"
+}
+```
+
+#### Типа FLOAT
+Добавление новой метрики типа "FLOAT":
+
+```bash
+curl --location --request POST http://localhost:8080/metrics \
+--data-raw '{
+    "slug":"FLOAT_METRIC",
+    "metric_type": "FLOAT",
+    "details":"Calculated in floating point numbers"
+}'
+```
+
+Пример ответа:
+
+```bash
+{
+    "metric_id": 2,
+    "slug": "FLOAT_METRIC",
+    "metric_type": "FLOAT",
+    "details": "Calculated in floating point numbers"
+}
+```
+
+#### Типа DURATION
+Добавление новой метрики типа "DURATION":
+
+```bash
+curl --location --request POST http://localhost:8080/metrics \
+--data-raw '{
+    "slug":"DURATION_METRIC",
+    "metric_type": "DURATION",
+    "details":"Calculated by duration"
+}'
+```
+
+Пример ответа:
+
+```bash
+{
+    "metric_id": 3,
+    "slug": "DURATION_METRIC",
+    "metric_type": "DURATION",
+    "details": "Calculated by duration"
+}
+```
+
+#### Типа TIMESTAMP_WITH_TIMEZONE
+Добавление новой метрики типа "TIMESTAMP_WITH_TIMEZONE":
+
+```bash
+curl --location --request POST http://localhost:8080/metrics \
+--data-raw '{
+    "slug":"TIMESTAMP_WITH_TIMEZONE_METRIC",
+    "metric_type": "TIMESTAMP_WITH_TIMEZONE",
+    "details":"Calculated by timestamps with timezone"
+}'
+```
+
+Пример ответа:
+
+```bash
+{
+    "metric_id": 4,
+    "slug": "TIMESTAMP_WITH_TIMEZONE_METRIC",
+    "metric_type": "TIMESTAMP_WITH_TIMEZONE",
+    "details": "Calculated by timestamps with timezone"
+}
+```
+
+#### Типа BOOL
+Добавление новой метрики типа "BOOL":
+
+```bash
+curl --location --request POST http://localhost:8080/metrics \
+--data-raw '{
+    "slug":"BOOL_METRIC",
+    "metric_type": "BOOL",
+    "details":"Calculated by logical type"
+}'
+```
+
+Пример ответа:
+
+```bash
+{
+    "metric_id": 5,
+    "slug": "BOOL_METRIC",
+    "metric_type": "BOOL",
+    "details": "Calculated by logical type"
+}
+```
+
+#### Типа STRING
+Добавление новой метрики типа "STRING":
+
+```bash
+curl --location --request POST http://localhost:8080/metrics \
+--data-raw '{
+    "slug":"STRING_METRIC",
+    "metric_type": "STRING",
+    "details":"Contains a message"
+}'
+```
+
+Пример ответа:
+
+```bash
+{
+    "metric_id": 6,
+    "slug": "STRING_METRIC",
+    "metric_type": "STRING",
+    "details": "Contains a message"
+}
+```
+
+### Просмотр метрики
+Просмотр метрики по идентификатору:
+
+```bash
+curl --location --request GET http://localhost:8080/metrics \
+--data-raw '{
+    "metric_id": 1
+}'
+```
+
+Пример ответа:
+
+```bash
+{
+    "metric_id": 1,
+    "slug": "INT_METRIC",
+    "metric_type": "INT",
+    "details": "Calculated in integers"
 }
 ```
 

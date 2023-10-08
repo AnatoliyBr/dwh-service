@@ -64,6 +64,9 @@ func (s *apiServer) configureRouter() {
 	r.HandleFunc("/services", s.handleServiceCreate()).Methods(http.MethodPost)
 	r.HandleFunc("/services", s.handleServiceFindByID()).Methods(http.MethodGet)
 
+	r.HandleFunc("/metrics", s.handleMetricCreate()).Methods(http.MethodPost)
+	r.HandleFunc("/metrics", s.handleMetricFindByID()).Methods(http.MethodGet)
+
 	s.httpServer.Handler = r
 }
 
@@ -186,6 +189,57 @@ func (s *apiServer) handleServiceFindByID() http.HandlerFunc {
 		}
 
 		s.respond(w, r, http.StatusOK, service)
+	}
+}
+
+func (s *apiServer) handleMetricCreate() http.HandlerFunc {
+	type request struct {
+		Slug       string `json:"slug"`
+		MetricType string `json:"metric_type"`
+		Details    string `json:"details"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		metric := &entity.Metric{
+			Slug:       req.Slug,
+			MetricType: req.MetricType,
+			Details:    req.Details,
+		}
+
+		if err := s.uc.MetricCreate(metric); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusCreated, metric)
+	}
+}
+
+func (s *apiServer) handleMetricFindByID() http.HandlerFunc {
+	type request struct {
+		MetricID int `json:"metric_id"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		metric, err := s.uc.MetricFindByID(req.MetricID)
+		if err != nil {
+			s.error(w, r, http.StatusNotFound, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusOK, metric)
 	}
 }
 
