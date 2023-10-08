@@ -3,6 +3,7 @@ package apiserver
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
@@ -68,6 +69,7 @@ func (s *apiServer) configureRouter() {
 	r.HandleFunc("/metrics", s.handleMetricFindByID()).Methods(http.MethodGet)
 
 	r.HandleFunc("/events", s.handleEventCreate()).Methods(http.MethodPost)
+	r.HandleFunc("/events", s.handleGetMetricValuesForTimePeriod()).Methods(http.MethodGet)
 
 	s.httpServer.Handler = r
 }
@@ -284,6 +286,57 @@ func (s *apiServer) handleEventCreate() http.HandlerFunc {
 		}
 
 		s.respond(w, r, http.StatusCreated, resp)
+	}
+}
+
+func (s *apiServer) handleGetMetricValuesForTimePeriod() http.HandlerFunc {
+	type request struct {
+		ServiceID int                   `json:"service_id"`
+		Period    [2]*entity.CustomTime `json:"period"`
+		MetricID  int                   `json:"metric_id"`
+	}
+
+	type response struct {
+		Request *request      `json:"request"`
+		Report  []*entity.Row `json:"report"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		if !req.Period[0].Time.Before(req.Period[1].Time) {
+			s.error(w, r, http.StatusBadRequest, errors.New("invalid period"))
+			return
+		}
+
+		_, err := s.uc.ServiceFindByID(req.ServiceID)
+		if err != nil {
+			s.error(w, r, http.StatusNotFound, err)
+			return
+		}
+
+		metric, err := s.uc.MetricFindByID(req.MetricID)
+		if err != nil {
+			s.error(w, r, http.StatusNotFound, err)
+			return
+		}
+
+		report, err := s.uc.GetMetricValuesForTimePeriod(req.ServiceID, req.Period, metric)
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		resp := &response{
+			Request: req,
+			Report:  report.([]*entity.Row),
+		}
+
+		s.respond(w, r, http.StatusOK, resp)
 	}
 }
 

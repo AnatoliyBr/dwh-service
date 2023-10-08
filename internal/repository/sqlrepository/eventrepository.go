@@ -49,12 +49,7 @@ func (r *EventRepository) AddMetricsToEvent(eventID int, metrics []*entity.Light
 }
 
 func (r *EventRepository) GetMetricValuesForTimePeriod(serviceID int, p [2]*entity.CustomTime, m *entity.Metric) (interface{}, error) {
-	type row struct {
-		t *entity.CustomTime
-		v interface{}
-	}
-
-	values := make([]row, 0)
+	values := make([]*entity.Row, 0)
 
 	rows, err := r.db.Query(
 		`SELECT e.time_stamp, ewm.metric_value FROM events e, events_with_metrics ewm WHERE (ewm.event_id IN (SELECT event_id FROM events WHERE service_id = $1 AND (time_stamp >= $2 AND time_stamp <= $3))) AND ewm.metric_id = $4 AND ewm.event_id = e.event_id`,
@@ -84,62 +79,62 @@ func (r *EventRepository) GetMetricValuesForTimePeriod(serviceID int, p [2]*enti
 			if err != nil {
 				return nil, err
 			}
-			values = append(values, row{
-				t: &entity.CustomTime{
+			values = append(values, &entity.Row{
+				TimeStamp: &entity.CustomTime{
 					Time: t,
 				},
-				v: i,
+				Value: i,
 			})
 		case "FLOAT":
 			f, err := strconv.ParseFloat(v, 32)
 			if err != nil {
 				return nil, err
 			}
-			values = append(values, row{
-				t: &entity.CustomTime{
+			values = append(values, &entity.Row{
+				TimeStamp: &entity.CustomTime{
 					Time: t,
 				},
-				v: f,
+				Value: f,
 			})
 		case "DURATION":
 			d, err := time.ParseDuration(v)
 			if err != nil {
 				return nil, err
 			}
-			values = append(values, row{
-				t: &entity.CustomTime{
+			values = append(values, &entity.Row{
+				TimeStamp: &entity.CustomTime{
 					Time: t,
 				},
-				v: d,
+				Value: d,
 			})
 		case "TIMESTAMP_WITH_TIMEZONE":
 			tmstmp, err := time.Parse(defaultLayout, v)
 			if err != nil {
 				return nil, err
 			}
-			values = append(values, row{
-				t: &entity.CustomTime{
+			values = append(values, &entity.Row{
+				TimeStamp: &entity.CustomTime{
 					Time: t,
 				},
-				v: &entity.CustomTime{Time: tmstmp},
+				Value: &entity.CustomTime{Time: tmstmp},
 			})
 		case "BOOL":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
 				return nil, err
 			}
-			values = append(values, row{
-				t: &entity.CustomTime{
+			values = append(values, &entity.Row{
+				TimeStamp: &entity.CustomTime{
 					Time: t,
 				},
-				v: b,
+				Value: b,
 			})
 		case "STRING":
-			values = append(values, row{
-				t: &entity.CustomTime{
+			values = append(values, &entity.Row{
+				TimeStamp: &entity.CustomTime{
 					Time: t,
 				},
-				v: v,
+				Value: v,
 			})
 		default:
 			return nil, errors.New("unknown metric type")

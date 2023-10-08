@@ -54,6 +54,7 @@ make compose-up
     * [Типа STRING](#типа-string)
 * [Просмотр метрики](#просмотр-метрики)
 * [Добавление события](#добавление-события)
+* [Получение данных](#получение-данных)
 
 ### Добавление сервиса
 Добавление нового сервиса:
@@ -61,7 +62,7 @@ make compose-up
 ```bash
 curl --location --request POST http://localhost:8080/services \
 --data-raw '{
-    "slug":"TODO_APP",
+    "slug": "TODO_APP",
     "details":"REST API application for managing task lists (todo lists)"
 }'
 ```
@@ -105,7 +106,7 @@ curl --location --request GET http://localhost:8080/services \
 ```bash
 curl --location --request POST http://localhost:8080/metrics \
 --data-raw '{
-    "slug":"INT_METRIC",
+    "slug": "INT_METRIC",
     "metric_type": "INT",
     "details":"Calculated in integers"
 }'
@@ -128,7 +129,7 @@ curl --location --request POST http://localhost:8080/metrics \
 ```bash
 curl --location --request POST http://localhost:8080/metrics \
 --data-raw '{
-    "slug":"FLOAT_METRIC",
+    "slug": "FLOAT_METRIC",
     "metric_type": "FLOAT",
     "details":"Calculated in floating point numbers"
 }'
@@ -151,7 +152,7 @@ curl --location --request POST http://localhost:8080/metrics \
 ```bash
 curl --location --request POST http://localhost:8080/metrics \
 --data-raw '{
-    "slug":"DURATION_METRIC",
+    "slug": "DURATION_METRIC",
     "metric_type": "DURATION",
     "details":"Calculated by duration"
 }'
@@ -174,7 +175,7 @@ curl --location --request POST http://localhost:8080/metrics \
 ```bash
 curl --location --request POST http://localhost:8080/metrics \
 --data-raw '{
-    "slug":"TIMESTAMP_WITH_TIMEZONE_METRIC",
+    "slug": "TIMESTAMP_WITH_TIMEZONE_METRIC",
     "metric_type": "TIMESTAMP_WITH_TIMEZONE",
     "details":"Calculated by timestamps with timezone"
 }'
@@ -197,7 +198,7 @@ curl --location --request POST http://localhost:8080/metrics \
 ```bash
 curl --location --request POST http://localhost:8080/metrics \
 --data-raw '{
-    "slug":"BOOL_METRIC",
+    "slug": "BOOL_METRIC",
     "metric_type": "BOOL",
     "details":"Calculated by logical type"
 }'
@@ -220,7 +221,7 @@ curl --location --request POST http://localhost:8080/metrics \
 ```bash
 curl --location --request POST http://localhost:8080/metrics \
 --data-raw '{
-    "slug":"STRING_METRIC",
+    "slug": "STRING_METRIC",
     "metric_type": "STRING",
     "details":"Contains a message"
 }'
@@ -327,6 +328,58 @@ curl --location --request POST http://localhost:8080/events \
         {
             "metric_id": 6,
             "metric_value": "Suspicious activity"
+        }
+    ]
+}
+```
+
+### Получение данных
+Получение данных по идентификатору сервиса и метрики за заданный интервал времени:
+
+```bash
+curl --location --request GET http://localhost:8080/events \
+--data-raw '{
+    "service_id": 1,
+    "period": [
+        "2023-10-06T10:00:00+03:00",
+        "2023-10-09T10:00:00+03:00"
+        ],
+    "metric_id": 3
+}'
+```
+
+Пример ответа:
+
+```bash
+{
+    "request": {
+        "service_id": 1,
+        "period": [
+            "2023-10-06T10:00:00+03:00",
+            "2023-10-09T10:00:00+03:00" 
+        ],
+        "metric_id": 3
+    },
+    "report": [
+        {
+            "time_stamp": "2023-10-08T22:54:47+03:00",
+            "value": 370000000000
+        },
+        {
+            "time_stamp": "2023-10-08T22:55:06+03:00",
+            "value": 78300000000
+        },
+        {
+            "time_stamp": "2023-10-08T22:55:26+03:00",
+            "value": 987600000000
+        },
+        {
+            "time_stamp": "2023-10-08T22:56:05+03:00",
+            "value": 3403100000000
+        },
+        {
+            "time_stamp": "2023-10-08T22:56:32+03:00",
+            "value": 3683800000000
         }
     ]
 }
