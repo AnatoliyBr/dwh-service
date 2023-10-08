@@ -7,7 +7,7 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-	databaseURL := os.Getenv("DATABASE_URL_LOCALHOST")
+	databaseURL := os.Getenv("DATABASE_URL")
 	if databaseURL == "" {
 		databaseURL = "postgres://dev:qwerty@localhost:5432/dwh_service_dev"
 	}

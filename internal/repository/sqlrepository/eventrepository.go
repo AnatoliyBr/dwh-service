@@ -105,7 +105,7 @@ func (r *EventRepository) GetMetricValuesForTimePeriod(serviceID int, p [2]*enti
 				TimeStamp: &entity.CustomTime{
 					Time: t,
 				},
-				Value: d,
+				Value: d.String(),
 			})
 		case "TIMESTAMP_WITH_TIMEZONE":
 			tmstmp, err := time.Parse(defaultLayout, v)
