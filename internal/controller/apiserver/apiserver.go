@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/AnatoliyBr/dwh-service/internal/entity"
+	"github.com/AnatoliyBr/dwh-service/internal/usecase"
 	"github.com/google/uuid"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -24,9 +26,10 @@ type apiServer struct {
 	shutdownTimeout time.Duration
 	config          *Config
 	logger          *logrus.Logger
+	uc              usecase.UseCase
 }
 
-func NewAPIServer(config *Config) (*apiServer, error) {
+func NewAPIServer(config *Config, uc usecase.UseCase) (*apiServer, error) {
 	s := &apiServer{
 		httpServer: &http.Server{
 			ReadTimeout:  config.ReadTimeout,
@@ -37,6 +40,7 @@ func NewAPIServer(config *Config) (*apiServer, error) {
 		shutdownTimeout: config.ShutdownTimeout,
 		config:          config,
 		logger:          logrus.New(),
+		uc:              uc,
 	}
 
 	s.configureRouter()
@@ -56,8 +60,9 @@ func (s *apiServer) configureRouter() {
 	r.Use(s.logRequest)
 	r.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
 
-	// test
-	r.HandleFunc("/hello", s.handleHello()).Methods(http.MethodGet)
+	// public
+	r.HandleFunc("/services", s.handleServiceCreate()).Methods(http.MethodPost)
+	r.HandleFunc("/services", s.handleServiceFindByID()).Methods(http.MethodGet)
 
 	s.httpServer.Handler = r
 }
@@ -135,9 +140,52 @@ func (s *apiServer) logRequest(next http.Handler) http.Handler {
 	})
 }
 
-func (s *apiServer) handleHello() http.HandlerFunc {
+func (s *apiServer) handleServiceCreate() http.HandlerFunc {
+	type request struct {
+		Slug    string `json:"slug"`
+		Details string `json:"details"`
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		s.respond(w, r, http.StatusOK, map[string]string{"test": "hello"})
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		service := &entity.Service{
+			Slug:    req.Slug,
+			Details: req.Details,
+		}
+
+		if err := s.uc.ServiceCreate(service); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusCreated, service)
+	}
+}
+
+func (s *apiServer) handleServiceFindByID() http.HandlerFunc {
+	type request struct {
+		ServiceID int `json:"service_id"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		service, err := s.uc.ServiceFindByID(req.ServiceID)
+		if err != nil {
+			s.error(w, r, http.StatusNotFound, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusOK, service)
 	}
 }
 

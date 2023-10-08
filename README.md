@@ -43,20 +43,47 @@ make compose-up
 ```
 
 ## Примеры запросов
-* [Hello](#hello)
+* [Добавление нового сервиса](#добавление-нового-сервиса)
+* [Просмотр сервиса](#просмотр-сервиса)
 
-### Hello
-Запрос на тестовый endpoint:
+### Добавление нового сервиса
+Добавление нового сервиса:
 
 ```bash
-curl http://localhost:8080/hello
+curl --location --request POST http://localhost:8080/services \
+--data-raw '{
+    "slug":"TODO_APP",
+    "details":"REST API application for managing task lists (todo lists)"
+}'
 ```
 
 Пример ответа:
 
 ```bash
 {
-    "test": "hello"
+    "service_id": 1,   
+    "slug": "TODO_APP",
+    "details": "REST API application for managing task lists (todo lists)"
+}
+```
+
+### Просмотр сервиса
+Просмотр сервиса по идентификатору:
+
+```bash
+curl --location --request GET http://localhost:8080/services \
+--data-raw '{
+    "service_id": 1
+}'
+```
+
+Пример ответа:
+
+```bash
+{
+    "service_id": 1,
+    "slug": "TODO_APP",
+    "details": "REST API application for managing task lists (todo lists)"
 }
 ```
 

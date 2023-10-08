@@ -9,6 +9,8 @@ import (
 
 	"github.com/AnatoliyBr/dwh-service/internal/controller/apiserver"
 	"github.com/AnatoliyBr/dwh-service/internal/repository"
+	"github.com/AnatoliyBr/dwh-service/internal/repository/sqlrepository"
+	"github.com/AnatoliyBr/dwh-service/internal/usecase"
 	"github.com/BurntSushi/toml"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
@@ -33,6 +35,14 @@ func Run() {
 	}
 	defer db.Close()
 
+	// Repository
+	sr := sqlrepository.NewServiceRepository(db)
+	mr := sqlrepository.NewMetricRepository(db)
+	er := sqlrepository.NewEventRepository(db)
+
+	// UseCase
+	uc := usecase.NewAppUseCase(sr, mr, er)
+
 	// Controller
 	flag.Parse()
 	configAPIServer := apiserver.NewConfig()
@@ -41,7 +51,7 @@ func Run() {
 		logrus.Fatal(fmt.Errorf("app - Run - toml.DecodeFile: %w", err))
 	}
 
-	s, err := apiserver.NewAPIServer(configAPIServer)
+	s, err := apiserver.NewAPIServer(configAPIServer, uc)
 	if err != nil {
 		logrus.Fatal(fmt.Errorf("app - Run - apiServer.NewAPIServer: %w", err))
 	}
