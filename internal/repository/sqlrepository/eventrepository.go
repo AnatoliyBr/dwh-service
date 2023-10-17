@@ -32,7 +32,7 @@ func (r *EventRepository) Create(e *entity.Event) error {
 	).Scan(&e.EventID)
 }
 
-func (r *EventRepository) AddMetricsToEvent(eventID int, metrics []*entity.LightMetric) error {
+func (r *EventRepository) AddMetricsToEvent(eventID int, metrics []*entity.AddMetric) error {
 	stmt, err := r.db.Prepare(
 		"INSERT INTO events_with_metrics (event_id, metric_id, metric_value) VALUES ($1, $2, $3)")
 	if err != nil {
@@ -49,7 +49,7 @@ func (r *EventRepository) AddMetricsToEvent(eventID int, metrics []*entity.Light
 }
 
 func (r *EventRepository) GetMetricValuesForTimePeriod(serviceID int, p [2]*entity.CustomTime, m *entity.Metric) (interface{}, error) {
-	values := make([]*entity.Row, 0)
+	values := make([]*entity.GetMetric, 0)
 
 	rows, err := r.db.Query(
 		`SELECT e.time_stamp, ewm.metric_value FROM events e, events_with_metrics ewm WHERE (ewm.event_id IN (SELECT event_id FROM events WHERE service_id = $1 AND (time_stamp >= $2 AND time_stamp <= $3))) AND ewm.metric_id = $4 AND ewm.event_id = e.event_id`,
@@ -79,8 +79,8 @@ func (r *EventRepository) GetMetricValuesForTimePeriod(serviceID int, p [2]*enti
 			if err != nil {
 				return nil, err
 			}
-			values = append(values, &entity.Row{
-				TimeStamp: &entity.CustomTime{
+			values = append(values, &entity.GetMetric{
+				TimeStamp: entity.CustomTime{
 					Time: t,
 				},
 				Value: i,
@@ -90,8 +90,8 @@ func (r *EventRepository) GetMetricValuesForTimePeriod(serviceID int, p [2]*enti
 			if err != nil {
 				return nil, err
 			}
-			values = append(values, &entity.Row{
-				TimeStamp: &entity.CustomTime{
+			values = append(values, &entity.GetMetric{
+				TimeStamp: entity.CustomTime{
 					Time: t,
 				},
 				Value: f,
@@ -101,8 +101,8 @@ func (r *EventRepository) GetMetricValuesForTimePeriod(serviceID int, p [2]*enti
 			if err != nil {
 				return nil, err
 			}
-			values = append(values, &entity.Row{
-				TimeStamp: &entity.CustomTime{
+			values = append(values, &entity.GetMetric{
+				TimeStamp: entity.CustomTime{
 					Time: t,
 				},
 				Value: d.String(),
@@ -112,8 +112,8 @@ func (r *EventRepository) GetMetricValuesForTimePeriod(serviceID int, p [2]*enti
 			if err != nil {
 				return nil, err
 			}
-			values = append(values, &entity.Row{
-				TimeStamp: &entity.CustomTime{
+			values = append(values, &entity.GetMetric{
+				TimeStamp: entity.CustomTime{
 					Time: t,
 				},
 				Value: &entity.CustomTime{Time: tmstmp},
@@ -123,15 +123,15 @@ func (r *EventRepository) GetMetricValuesForTimePeriod(serviceID int, p [2]*enti
 			if err != nil {
 				return nil, err
 			}
-			values = append(values, &entity.Row{
-				TimeStamp: &entity.CustomTime{
+			values = append(values, &entity.GetMetric{
+				TimeStamp: entity.CustomTime{
 					Time: t,
 				},
 				Value: b,
 			})
 		case "STRING":
-			values = append(values, &entity.Row{
-				TimeStamp: &entity.CustomTime{
+			values = append(values, &entity.GetMetric{
+				TimeStamp: entity.CustomTime{
 					Time: t,
 				},
 				Value: v,

@@ -32,7 +32,7 @@ func (r *EventRepository) Create(e *entity.Event) error {
 	return nil
 }
 
-func (r *EventRepository) AddMetricsToEvent(eventID int, metrics []*entity.LightMetric) error {
+func (r *EventRepository) AddMetricsToEvent(eventID int, metrics []*entity.AddMetric) error {
 	if _, ok := r.events[eventID]; !ok {
 		return repository.ErrRecordNotFound
 	}
@@ -45,12 +45,7 @@ func (r *EventRepository) AddMetricsToEvent(eventID int, metrics []*entity.Light
 }
 
 func (r *EventRepository) GetMetricValuesForTimePeriod(serviceID int, p [2]*entity.CustomTime, m *entity.Metric) (interface{}, error) {
-	type row struct {
-		t *entity.CustomTime
-		v interface{}
-	}
-
-	values := make([]row, 0)
+	values := make([]*entity.GetMetric, 0)
 
 	suitableEvents := make([]*entity.Event, 0)
 
@@ -65,34 +60,34 @@ func (r *EventRepository) GetMetricValuesForTimePeriod(serviceID int, p [2]*enti
 
 		switch v.(type) {
 		case int:
-			values = append(values, row{
-				t: &se.TimeStamp,
-				v: v.(int),
+			values = append(values, &entity.GetMetric{
+				TimeStamp: se.TimeStamp,
+				Value:     v.(int),
 			})
 		case float64:
-			values = append(values, row{
-				t: &se.TimeStamp,
-				v: v.(float64),
+			values = append(values, &entity.GetMetric{
+				TimeStamp: se.TimeStamp,
+				Value:     v.(float64),
 			})
 		case time.Duration:
-			values = append(values, row{
-				t: &se.TimeStamp,
-				v: v.(time.Duration),
+			values = append(values, &entity.GetMetric{
+				TimeStamp: se.TimeStamp,
+				Value:     v.(time.Duration),
 			})
 		case time.Time:
-			values = append(values, row{
-				t: &se.TimeStamp,
-				v: &entity.CustomTime{Time: v.(time.Time)},
+			values = append(values, &entity.GetMetric{
+				TimeStamp: se.TimeStamp,
+				Value:     &entity.CustomTime{Time: v.(time.Time)},
 			})
 		case bool:
-			values = append(values, row{
-				t: &se.TimeStamp,
-				v: v.(bool),
+			values = append(values, &entity.GetMetric{
+				TimeStamp: se.TimeStamp,
+				Value:     v.(bool),
 			})
 		case string:
-			values = append(values, row{
-				t: &se.TimeStamp,
-				v: v.(string),
+			values = append(values, &entity.GetMetric{
+				TimeStamp: se.TimeStamp,
+				Value:     v.(string),
 			})
 		case nil:
 			return nil, repository.ErrRecordNotFound

@@ -249,13 +249,13 @@ func (s *apiServer) handleMetricFindByID() http.HandlerFunc {
 
 func (s *apiServer) handleEventCreate() http.HandlerFunc {
 	type request struct {
-		ServiceID int                   `json:"service_id"`
-		Metrics   []*entity.LightMetric `json:"metrics"`
+		ServiceID int                 `json:"service_id"`
+		Metrics   []*entity.AddMetric `json:"metrics"`
 	}
 
 	type response struct {
-		Event   *entity.Event         `json:"event"`
-		Metrics []*entity.LightMetric `json:"metrics"`
+		Event   *entity.Event       `json:"event"`
+		Metrics []*entity.AddMetric `json:"metrics"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -297,8 +297,8 @@ func (s *apiServer) handleGetMetricValuesForTimePeriod() http.HandlerFunc {
 	}
 
 	type response struct {
-		Request *request      `json:"request"`
-		Report  []*entity.Row `json:"report"`
+		Request *request            `json:"request"`
+		Report  []*entity.GetMetric `json:"report"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -333,7 +333,7 @@ func (s *apiServer) handleGetMetricValuesForTimePeriod() http.HandlerFunc {
 
 		resp := &response{
 			Request: req,
-			Report:  report.([]*entity.Row),
+			Report:  report.([]*entity.GetMetric),
 		}
 
 		s.respond(w, r, http.StatusOK, resp)

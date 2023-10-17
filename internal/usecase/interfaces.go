@@ -10,6 +10,6 @@ type UseCase interface {
 	MetricFindByID(int) (*entity.Metric, error)
 
 	EventCreate(*entity.Event) error
-	AddMetricsToEvent(int, []*entity.LightMetric) error
+	AddMetricsToEvent(int, []*entity.AddMetric) error
 	GetMetricValuesForTimePeriod(int, [2]*entity.CustomTime, *entity.Metric) (interface{}, error)
 }

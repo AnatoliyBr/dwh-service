@@ -120,7 +120,7 @@ func TestAppUseCase_AddMetricsToEvent(t *testing.T) {
 			er := testrepository.NewEventRepository()
 			uc := usecase.NewAppUseCase(sr, mr, er)
 
-			err := uc.AddMetricsToEvent(e.EventID, []*entity.LightMetric{
+			err := uc.AddMetricsToEvent(e.EventID, []*entity.AddMetric{
 				{
 					MetricID:    m.MetricID,
 					MetricValue: tc.metricValue,
@@ -128,7 +128,7 @@ func TestAppUseCase_AddMetricsToEvent(t *testing.T) {
 			assert.EqualError(t, err, repository.ErrRecordNotFound.Error())
 
 			uc.EventCreate(e)
-			err = uc.AddMetricsToEvent(e.EventID, []*entity.LightMetric{
+			err = uc.AddMetricsToEvent(e.EventID, []*entity.AddMetric{
 				{
 					MetricID:    m.MetricID,
 					MetricValue: tc.metricValue,
@@ -245,7 +245,7 @@ func TestAppUseCase_GetMetricValuesForTimePeriod(t *testing.T) {
 			_, err := uc.GetMetricValuesForTimePeriod(e.ServiceID, tc.p, m)
 			assert.EqualError(t, err, repository.ErrRecordNotFound.Error())
 
-			uc.AddMetricsToEvent(e.EventID, []*entity.LightMetric{
+			uc.AddMetricsToEvent(e.EventID, []*entity.AddMetric{
 				{
 					MetricID:    m.MetricID,
 					MetricValue: tc.metricValue,

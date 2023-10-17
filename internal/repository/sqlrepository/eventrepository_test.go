@@ -81,7 +81,7 @@ func TestEventRepository_AddMetricsToEvent(t *testing.T) {
 			mr.Create(m)
 			er.Create(e)
 
-			err := er.AddMetricsToEvent(e.EventID, []*entity.LightMetric{
+			err := er.AddMetricsToEvent(e.EventID, []*entity.AddMetric{
 				{
 					MetricID:    m.MetricID,
 					MetricValue: tc.metricValue,
@@ -199,7 +199,7 @@ func TestEventRepository_GetMetricValuesForTimePeriod(t *testing.T) {
 			_, err := er.GetMetricValuesForTimePeriod(s.ServiceID, tc.p, m)
 			assert.EqualError(t, err, repository.ErrRecordNotFound.Error())
 
-			er.AddMetricsToEvent(e.EventID, []*entity.LightMetric{
+			er.AddMetricsToEvent(e.EventID, []*entity.AddMetric{
 				{
 					MetricID:    m.MetricID,
 					MetricValue: tc.metricValue,

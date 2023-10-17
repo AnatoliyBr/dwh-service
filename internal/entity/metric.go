@@ -16,9 +16,14 @@ type Metric struct {
 	Details    string `json:"details"`
 }
 
-type LightMetric struct {
+type AddMetric struct {
 	MetricID    int         `json:"metric_id"`
 	MetricValue interface{} `json:"metric_value"`
+}
+
+type GetMetric struct {
+	TimeStamp CustomTime  `json:"time_stamp"`
+	Value     interface{} `json:"value"`
 }
 
 func (m *Metric) Validate() error {

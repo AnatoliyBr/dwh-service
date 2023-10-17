@@ -35,6 +35,8 @@ GET /events - получение данных по идентификатору 
 ## Запуск и отладка
 Все команды, используемые в процессе разработки и тестирования, фиксировались в `Makefile`.
 
+Для запуска сервиса достаточно добавить `.env` файл в директорию с проектом и заполнить его данными из [.env.example](/.env.example).
+
 Чтобы поднять проект, необходимо выполнить **две задачи** из `Makefile`:
 
 ```bash
@@ -63,7 +65,7 @@ make compose-up
 curl --location --request POST http://localhost:8080/services \
 --data-raw '{
     "slug": "TODO_APP",
-    "details":"REST API application for managing task lists (todo lists)"
+    "details": "REST API application for managing task lists (todo lists)"
 }'
 ```
 
@@ -108,7 +110,7 @@ curl --location --request POST http://localhost:8080/metrics \
 --data-raw '{
     "slug": "INT_METRIC",
     "metric_type": "INT",
-    "details":"Calculated in integers"
+    "details": "Calculated in integers"
 }'
 ```
 
@@ -131,7 +133,7 @@ curl --location --request POST http://localhost:8080/metrics \
 --data-raw '{
     "slug": "FLOAT_METRIC",
     "metric_type": "FLOAT",
-    "details":"Calculated in floating point numbers"
+    "details": "Calculated in floating point numbers"
 }'
 ```
 
@@ -154,7 +156,7 @@ curl --location --request POST http://localhost:8080/metrics \
 --data-raw '{
     "slug": "DURATION_METRIC",
     "metric_type": "DURATION",
-    "details":"Calculated by duration"
+    "details": "Calculated by duration"
 }'
 ```
 
@@ -177,7 +179,7 @@ curl --location --request POST http://localhost:8080/metrics \
 --data-raw '{
     "slug": "TIMESTAMP_WITH_TIMEZONE_METRIC",
     "metric_type": "TIMESTAMP_WITH_TIMEZONE",
-    "details":"Calculated by timestamps with timezone"
+    "details": "Calculated by timestamps with timezone"
 }'
 ```
 
@@ -200,7 +202,7 @@ curl --location --request POST http://localhost:8080/metrics \
 --data-raw '{
     "slug": "BOOL_METRIC",
     "metric_type": "BOOL",
-    "details":"Calculated by logical type"
+    "details": "Calculated by logical type"
 }'
 ```
 
@@ -223,7 +225,7 @@ curl --location --request POST http://localhost:8080/metrics \
 --data-raw '{
     "slug": "STRING_METRIC",
     "metric_type": "STRING",
-    "details":"Contains a message"
+    "details": "Contains a message"
 }'
 ```
 

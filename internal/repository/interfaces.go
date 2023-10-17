@@ -13,6 +13,6 @@ type MetricRepository interface {
 }
 type EventRepository interface {
 	Create(*entity.Event) error
-	AddMetricsToEvent(int, []*entity.LightMetric) error
+	AddMetricsToEvent(int, []*entity.AddMetric) error
 	GetMetricValuesForTimePeriod(int, [2]*entity.CustomTime, *entity.Metric) (interface{}, error)
 }

@@ -39,7 +39,7 @@ func (uc *AppUseCase) EventCreate(e *entity.Event) error {
 	return uc.eventRepository.Create(e)
 }
 
-func (uc *AppUseCase) AddMetricsToEvent(eventID int, metrics []*entity.LightMetric) error {
+func (uc *AppUseCase) AddMetricsToEvent(eventID int, metrics []*entity.AddMetric) error {
 	return uc.eventRepository.AddMetricsToEvent(eventID, metrics)
 }
 
